@@ -1,6 +1,6 @@
 ﻿#include "ConnectionPool.h"
 
-ConnectionPool* ConnectionPool::getConnectionPool()
+ConnectionPool *ConnectionPool::getConnectionPool()
 {
 	static ConnectionPool pool;
 	return &pool;
@@ -9,12 +9,14 @@ ConnectionPool* ConnectionPool::getConnectionPool()
 shared_ptr<Connection> ConnectionPool::getConnection()
 {
 	unique_lock<mutex> lock(_queueMutex);
-	while (_connectionQue.empty()) {
+	while (_connectionQue.empty())
+	{
 		//如果有生产者线程在_connectionTimeOut时间之内生产好，会通知消费者，在超时时间内被唤醒
 		//如果是超时时间内还没有被唤醒，而且超时了
 		if (cv_status::timeout == cv.wait_for(lock, chrono::microseconds(_connectionTimeOut)))
 		{
-			if (_connectionQue.empty()) {
+			if (_connectionQue.empty())
+			{
 				LOG("获取空闲连接超时了...获取连接失败！");
 				return nullptr;
 			}
@@ -27,22 +29,28 @@ shared_ptr<Connection> ConnectionPool::getConnection()
 	* 默认的shared_ptr删除器
 	* 这里自己写删除器，注意获取外部变量[&]
 	*/
-	shared_ptr<Connection>sp(_connectionQue.front(), [&](Connection* c)
-		{unique_lock<mutex> lock(_queueMutex);
-	c->refreshAliveTime();
-	_connectionQue.push(c); });
+	shared_ptr<Connection> sp(_connectionQue.front(), [&](Connection *c)
+							  {
+								  unique_lock<mutex> lock(_queueMutex);
+								  c->refreshAliveTime();
+								  _connectionQue.push(c);
+							  });
 
 	_connectionQue.pop();
 	/*队列中最后一个connection，通知生产者开始生产*/
-	if (_connectionQue.empty())cv.notify_all();
+	if (_connectionQue.empty())
+		cv.notify_all();
 	return sp;
 }
 
-ConnectionPool::ConnectionPool() {
-	if (!loadConfigFile())return;
+ConnectionPool::ConnectionPool()
+{
+	if (!loadConfigFile())
+		return;
 	/*创建初始数量的连接*/
-	for (int i = 0; i < _initSize; ++i) {
-		Connection* p = new Connection();
+	for (int i = 0; i < _initSize; ++i)
+	{
+		Connection *p = new Connection();
 		p->connect(_ip, _port, _username, _password, _dbname);
 		p->refreshAliveTime();
 		_connectionQue.push(p);
@@ -60,19 +68,22 @@ ConnectionPool::ConnectionPool() {
 
 bool ConnectionPool::loadConfigFile()
 {
-	FILE* pf = fopen("mysql.ini", "r");
-	if (pf == nullptr) {
+	FILE *pf = fopen("../example/mysql.ini", "r");
+	if (pf == nullptr)
+	{
 		LOG("mysql.ini file is not exist!");
 		return false;
 	}
 	unordered_map<string, string> map;
 	//如果文件未到末尾
-	while (!feof(pf)) {
-		char line[1024] = { 0 };
+	while (!feof(pf))
+	{
+		char line[1024] = {0};
 		fgets(line, 1024, pf);
 		string str = line;
 		int idx = str.find('=', 0);
-		if (idx == -1)continue;
+		if (idx == -1)
+			continue;
 		int endidx = str.find('\n', idx);
 		string key = str.substr(0, idx);
 		string value = str.substr(idx + 1, endidx - idx - 1);
@@ -87,18 +98,22 @@ bool ConnectionPool::loadConfigFile()
 	_maxSize = atoi(map["maxSize"].c_str());
 	_maxIdleTime = atoi(map["maxIdleTime"].c_str());
 	_connectionTimeOut = atoi(map["connectionTimeOut"].c_str());
+
 	return true;
 }
 
 void ConnectionPool::produceConnectionTask()
 {
-	while (true) {
+	while (true)
+	{
 		unique_lock<mutex> lock(_queueMutex);
-		while (!_connectionQue.empty()) {
-			cv.wait(lock);//队列不空，此处生产线程进入等待状态，等待就会放锁
+		while (!_connectionQue.empty())
+		{
+			cv.wait(lock); //队列不空，此处生产线程进入等待状态，等待就会放锁
 		}
-		if (_conntectionCnt < _maxSize) {
-			Connection* p = new Connection();
+		if (_conntectionCnt < _maxSize)
+		{
+			Connection *p = new Connection();
 			p->connect(_ip, _port, _username, _password, _dbname);
 			p->refreshAliveTime();
 			_connectionQue.push(p);
@@ -113,18 +128,21 @@ void ConnectionPool::produceConnectionTask()
 void ConnectionPool::scannerConnectionTask()
 {
 	while (true)
-	{	//通过sleep模拟定时效果
+	{ //通过sleep模拟定时效果
 		this_thread::sleep_for(chrono::seconds(_maxIdleTime));
 		//扫描整个队列，释放多余连接
 		unique_lock<mutex> lock(_queueMutex);
-		while (_conntectionCnt > _initSize) {
-			Connection* p = _connectionQue.front();
-			if (p->getAliveTime ()>= (_maxIdleTime * 1000)) {
+		while (_conntectionCnt > _initSize)
+		{
+			Connection *p = _connectionQue.front();
+			if (p->getAliveTime() >= (_maxIdleTime * 1000))
+			{
 				_connectionQue.pop();
 				_conntectionCnt--;
 				delete p;
 			}
-			else {
+			else
+			{
 				//对头都没有超过_maxIdleTime，后面的连接更不可能超过_maxIdleTime
 				break;
 			}

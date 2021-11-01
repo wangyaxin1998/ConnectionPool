@@ -1,0 +1,17 @@
+[
+{
+  "directory": "G:/CppRecur/connection_pool/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -g -o CMakeFiles\\main.dir\\src\\Connection.cpp.obj -c G:\\CppRecur\\connection_pool\\src\\Connection.cpp",
+  "file": "G:/CppRecur/connection_pool/src/Connection.cpp"
+},
+{
+  "directory": "G:/CppRecur/connection_pool/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -g -o CMakeFiles\\main.dir\\src\\ConnectionPool.cpp.obj -c G:\\CppRecur\\connection_pool\\src\\ConnectionPool.cpp",
+  "file": "G:/CppRecur/connection_pool/src/ConnectionPool.cpp"
+},
+{
+  "directory": "G:/CppRecur/connection_pool/build",
+  "command": "D:\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -g -o CMakeFiles\\main.dir\\example\\main.cpp.obj -c G:\\CppRecur\\connection_pool\\example\\main.cpp",
+  "file": "G:/CppRecur/connection_pool/example/main.cpp"
+}
+]

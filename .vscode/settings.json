@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "xstring": "cpp",
+        "condition_variable": "cpp"
+    }
+}
