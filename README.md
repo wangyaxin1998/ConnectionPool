@@ -21,7 +21,7 @@ unique_lock、基于CAS的原子整形、智能指针shared_ptr、lambda表达�
 始连接量，最大连接量，最大空闲时间、连接超时时间等，该项目是基于C++语言实现的连接池，主要
 也是实现以上几个所有连接池都支持的通用基础功能。
 
-**初始连接量（initSize）：**表示连接池事先会和MySQL Server创建initSize个数的connection连接，当
+**初始连接量（initSize）**：表示连接池事先会和MySQL Server创建initSize个数的connection连接，当
 应用发起MySQL访问时，不用再创建和MySQL Server新的连接，直接从连接池中获取一个可用的连接
 就可以，使用完成后，并不去释放connection，而是把当前connection再归还到连接池当中。
 
@@ -31,12 +31,12 @@ unique_lock、基于CAS的原子整形、智能指针shared_ptr、lambda表达�
 主机上的，如果连接池占用过多的socket资源，那么服务器就不能接收太多的客户端请求了。当这些连
 接使用完成后，再次归还到连接池当中来维护。
 
-**最大空闲时间（maxIdleTime）：**当访问MySQL的并发请求多了以后，连接池里面的连接数量会动态
+**最大空闲时间（maxIdleTime）**：当访问MySQL的并发请求多了以后，连接池里面的连接数量会动态
 增加，上限是maxSize个，当这些连接用完再次归还到连接池当中。如果在指定的maxIdleTime里面，
 这些新增加的连接都没有被再次使用过，那么新增加的这些连接资源就要被回收掉，只需要保持初始连
 接量initSize个连接就可以了。
 
-**连接超时时间（connectionTimeout）：**当MySQL的并发请求量过大，连接池中的连接数量已经到达
+**连接超时时间（connectionTimeout）**：当MySQL的并发请求量过大，连接池中的连接数量已经到达
 maxSize了，而此时没有空闲的连接可供使用，那么此时应用从连接池获取连接无法成功，它通过阻塞
 的方式获取连接的时间如果超过connectionTimeout时间，那么获取连接失败，无法访问数据库。
 该项目主要实现上述的连接池四大功能，其余连接池更多的扩展功能，可以自行实现。
